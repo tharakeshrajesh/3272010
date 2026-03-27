@@ -241,7 +241,7 @@
 				alert("No logs for this day.");
 				return;
 			}
-            document.location.href = `${currentYear}-${currentMonth+1}-${e.target.textContent}`;
+            document.location.href = `/journal/${currentYear}-${currentMonth+1}-${e.target.textContent}`;
 		}
 	});
 	renderCalendar(currentMonth, currentYear);
