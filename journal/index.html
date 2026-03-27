@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Journal Calendar</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+	body {
+		font-family: "Georgia", serif;
+		background: #0f1115;
+		color: #e4e4e4;
+		margin: 0;
+	}
+	
+	.container {
+		max-width: 900px;
+		margin: 40px auto;
+		padding: 20px;
+	}
+	
+	h1 {
+		text-align: center;
+		margin-bottom: 10px;
+	}
+	
+	header {
+		text-align: center;
+		margin-bottom: 30px;
+		color: #777;
+	}
+	
+	.calendar {
+		width: 100%;
+		background-color: #1e1e1e;
+		box-shadow: 0 2px 8px #fff;
+		border-radius: 6px;
+		overflow: hidden;
+	}
+	
+	.calendar-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 15px;
+	}
+	
+	.calendar-header button {
+		background-color: transparent;
+		border: none;
+		font-size: 1.5em;
+		cursor: pointer;
+	}
+	
+	#month-year {
+		font-size: 1.2em;
+		font-weight: bold;
+	}
+	
+	.calendar-weekdays,
+	.calendar-dates {
+		display: grid;
+		grid-template-columns: repeat(7, 1fr);
+	}
+	
+	.calendar-weekdays {
+		border: 1px solid #464646;
+	}
+	
+	.calendar-weekdays div,
+	.calendar-dates div {
+		text-align: center;
+		padding: 12px;
+	}
+	
+	.calendar-weekdays div {
+		font-weight: bold;
+	}
+	
+	.monthChange {
+		color: #fff;
+	}
+	
+	.day {
+		cursor: pointer;
+		border-radius: 3px;
+		margin: 4px;
+		transition: 0.2s ease;
+	}
+	
+	.day:hover {
+		transform: scale(1.08);
+		background-color: #880000;
+	}
+	
+	.unrated {
+		background: #00547b;
+	}
+	
+	.trash {
+		background: #000000;
+	}
+	
+	.boring {
+		background: #002e07;
+	}
+	
+	.okay {
+		background: #006a0e;
+	}
+	
+	.good {
+		background: #00a216;
+	}
+	
+	.legend {
+		margin-top: 25px;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 15px;
+		font-size: 0.9rem;
+	}
+	
+	.legend div {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+	
+	.box {
+		width: 15px;
+		height: 15px;
+		border-radius: 3px;
+		border: 2px solid #ffffff;
+	}
+	
+	footer {
+		text-align: center;
+		margin-top: 30px;
+		color: #777;
+		font-size: 0.9rem;
+	}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<h1>Journal</h1>
+		<header>Click a day to view the journal entry</header>
+		<div class="calendar">
+			<div class="calendar-header">
+				<button id="prev-month" class="monthChange">‹</button>
+				<div id="month-year"></div>
+				<button id="next-month" class="monthChange">›</button>
+			</div>
+			<div class="calendar-body">
+				<div class="calendar-weekdays">
+					<div>Sun</div>
+					<div>Mon</div>
+					<div>Tue</div>
+					<div>Wed</div>
+					<div>Thu</div>
+					<div>Fri</div>
+					<div>Sat</div>
+				</div>
+				<div class="calendar-dates"></div>
+			</div>
+		</div>
+		<!-- also yes, i just stole the calendar from https://dev.to/wizdomtek/creating-a-dynamic-calendar-using-html-css-and-javascript-29m so there is credits.-->
+		<div class="legend">
+			<div><span class="box unrated"></span> Unrated</div>
+			<div><span class="box trash"></span> Trash</div>
+			<div><span class="box boring"></span> Boring</div>
+			<div><span class="box okay"></span> Okay</div>
+			<div><span class="box good"></span> Good</div>
+		</div>
+		<footer> Credits to <a href="https://dev.to/wizdomtek/creating-a-dynamic-calendar-using-html-css-and-javascript-29m">
+            dev.to
+        </a> for the calendar. </footer>
+	</div>
+	<script>
+	const calendarDates = document.querySelector('.calendar-dates');
+	const monthYear = document.getElementById('month-year');
+	const prevMonthBtn = document.getElementById('prev-month');
+	const nextMonthBtn = document.getElementById('next-month');
+	let currentDate = new Date();
+	let currentMonth = currentDate.getMonth();
+	let currentYear = currentDate.getFullYear();
+	const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+	function renderCalendar(month, year) {
+		calendarDates.innerHTML = '';
+		monthYear.textContent = `${months[month]} ${year}`;
+		const firstDay = new Date(year, month, 1).getDay();
+		const daysInMonth = new Date(year, month + 1, 0).getDate();
+		let json;
+		const request = new XMLHttpRequest();
+		request.open("GET", "/journal/ratings.json", false);
+		request.send(null);
+		if(request.status === 200) {
+			console.log(request.responseText);
+			json = request.responseText;
+		}
+		const ratings = JSON.parse(json);
+		console.log(ratings);
+		for(let i = 0; i < firstDay; i++) {
+			const blank = document.createElement('div');
+			calendarDates.appendChild(blank);
+		}
+		for(let i = 1; i <= daysInMonth; i++) {
+			const day = document.createElement('div');
+			day.textContent = i;
+			if(ratings[year + "-" + (month + 1) + "-" + i]) {
+				day.className = ratings[year + "-" + (month + 1) + "-" + i] + " day";
+			} else {
+				day.className = "unrated day";
+			}
+			calendarDates.appendChild(day);
+		}
+	}
+	prevMonthBtn.addEventListener('click', () => {
+		currentMonth--;
+		if(currentMonth < 0) {
+			currentMonth = 11;
+			currentYear--;
+		}
+		renderCalendar(currentMonth, currentYear);
+	});
+	nextMonthBtn.addEventListener('click', () => {
+		currentMonth++;
+		if(currentMonth > 11) {
+			currentMonth = 0;
+			currentYear++;
+		}
+		renderCalendar(currentMonth, currentYear);
+	});
+	calendarDates.addEventListener('click', (e) => {
+		if(e.target.className.includes("day")) {
+			if(e.target.className == "unrated day") {
+				alert("No logs for this day.");
+				return;
+			}
+            document.location.href = `${currentYear}-${currentMonth+1}-${e.target.textContent}`;
+		}
+	});
+	renderCalendar(currentMonth, currentYear);
+	</script>
+</body>
+
+</html>
