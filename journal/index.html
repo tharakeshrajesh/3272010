@@ -196,7 +196,7 @@
 		const daysInMonth = new Date(year, month + 1, 0).getDate();
 		let json;
 		const request = new XMLHttpRequest();
-		request.open("GET", "/journal/ratings.json", false);
+		request.open("GET", "https://raw.githubusercontent.com/tharakeshrajesh/3272010/refs/heads/main/journal/ratings.json", false);
 		request.send(null);
 		if(request.status === 200) {
 			console.log(request.responseText);
