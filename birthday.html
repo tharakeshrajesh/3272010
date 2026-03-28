@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3/27/2010??</title>
+    <style>
+        body {
+            background: #121212;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 4em;
+            margin: 0;
+        }
+
+        .emoji-row {
+            font-size: 1.5em;
+            margin-top: 10px;
+        }
+
+        .confetti {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            animation: fall 1.5s ease-out forwards;
+        }
+        
+        button {
+            margin-top: 20px;
+            padding: 12px 24px;
+            font-size: 1em;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(135deg, #141414, #1a1a1a);
+            border: 1px solid #222;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+        }
+        
+        button:hover {
+            transform: translateY(-2px) scale(1.03);
+            background: linear-gradient(135deg, #1a1a1a, #222);
+            border-color: #333;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.85);
+        }
+        
+        button:active {
+            transform: translateY(1px) scale(0.98);
+            background: #101010;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
+        }
+        
+        button:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(85, 181, 68, 0.4);
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translate(0, 0) rotateX(0deg) rotateY(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--x), var(--y)) rotateX(720deg) rotateY(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1 id="cntdwn"></h1>
+    <div class="emoji-row">🎉🎊🎂🎈🎉🎊</div>
+    
+    <button onclick="download()" id="game">In the meanwhile, you can play a game...</button>
+    
+    <canvas id="backgroundConfetti" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1;"></canvas>
+
+    <script>
+        const colors = ['#55b544', '#44b5b3', '#b54446', '#b58a44', '#4446b5'];
+        const countDownDate = new Date("Mar 27, 2026").getTime();
+
+        const x = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = countDownDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("cntdwn").innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+            if (distance < 0) {
+                clearInterval(x);
+                startCelebration();
+            }
+        }, 1000);
+        
+        function download(){
+            if (navigator.appVersion.indexOf("Win") != -1){
+                window.location.href = "/download-win/";
+                return;
+            };
+            if (navigator.appVersion.indexOf("Linux") != -1){
+                window.location.href = "/download-gnu/";
+                return;
+            };
+            alert("You're OS isn't supported for this game.");
+        }
+
+        function startCelebration() {
+            document.getElementById("cntdwn").innerHTML = "HAPPY BIRTHDAY!!";
+            document.title = "HAPPY BIRTHDAY!!";
+
+            document.getElementById("game").remove();
+
+            document.addEventListener('mousemove', (e) => {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                const size = Math.floor(Math.random() * 8 + 6) + 'px';
+
+                Object.assign(confetti.style, {
+                    left: `${e.clientX}px`,
+                    top: `${e.clientY}px`,
+                    width: size,
+                    height: size,
+                    backgroundColor: colors[Math.floor(Math.random() * colors.length)],
+                    borderRadius: Math.random() > 0.5 ? '2px' : '50%'
+                });
+
+                confetti.style.setProperty('--x', `${(Math.random() - 0.5) * 200}px`);
+                confetti.style.setProperty('--y', `${Math.random() * 200 + 50}px`);
+
+                document.body.appendChild(confetti);
+                confetti.addEventListener('animationend', () => confetti.remove());
+            });
+
+            const canvas = document.getElementById('backgroundConfetti');
+            const ctx = canvas.getContext('2d');
+            let confettiArr = [];
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            class Confetto {
+                constructor() { this.init(); }
+                init() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height - canvas.height;
+                    this.size = Math.random() * 8 + 4;
+                    this.color = colors[Math.floor(Math.random() * colors.length)];
+                    this.speed = Math.random() * 3 + 2;
+                    this.drift = (Math.random() - 0.5) * 2;
+                    this.rotation = Math.random() * 360;
+                    this.rotationSpeed = (Math.random() - 0.5) * 10;
+                }
+                update() {
+                    this.y += this.speed;
+                    this.x += this.drift;
+                    this.rotation += this.rotationSpeed;
+                    if (this.y > canvas.height) this.init();
+                }
+                draw() {
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.rotation * Math.PI / 180);
+                    ctx.fillStyle = this.color;
+                    ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+                    ctx.restore();
+                }
+            }
+
+            for (let i = 0; i < 200; i++) confettiArr.push(new Confetto());
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                confettiArr.forEach(c => { c.update(); c.draw(); });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        setTimeout(() => {
+            document.body.innerHTML = '<video src="https://dn720407.ca.archive.org/0/items/rick-roll/Rick%20Roll.mp4" autoplay controls style="width: 100%; height: 100%; object-fit: cover;"></video>';
+            document.body.style.margin = '0';
+        }, 30000);
+        
+        // for you idiots using the wayback machine or github and looking at this, yes i just copy pasted from w3schools and i also used ai (gemini). sorry for vibe coding and copy pasting but im too lazy to code any of this myself.
+    </script>
+</body>
+</html>

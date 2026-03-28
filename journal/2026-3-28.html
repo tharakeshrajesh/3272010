@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>March 28, 2026</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+        font-family: "Georgia", serif;
+        background: #0f1115;
+        color: #e4e4e4;
+        margin: 0;
+        padding: 20px;
+        }
+        
+        .container {
+        max-width: 900px;
+        margin: auto;
+        }
+        
+        .entry {
+        background: #1a1d24;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        min-height: auto;
+        }
+        
+        .entry h1 {
+        margin-bottom: 10px;
+        font-size: 2rem;
+        }
+        
+        .content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #d0d0d0;
+        }
+        
+        pre {
+        background:#000000;
+        border-radius:5px;
+        border-left: 4px solid #555;
+        padding-left: 15px;
+        color: #ffffff;
+        margin: 20px 0;
+        font-size: 0.7rem;
+        }
+
+        code {
+            background: #000000;
+            color: #ffffff;
+            padding: 3px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        
+        a.back {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #aaa;
+        text-decoration: none;
+        }
+        
+        a.back:hover {
+        color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <a href="/journal" class="back">← Back to Calendar</a>
+
+        <div class="entry">
+            <h1>March 28, 2026</h1>
+
+            <div class="content">
+                <p style="text-indent: 40px;">
+                    The movie was good yesterday. Everyone enjoyed the "party."
+                    ok bruh im done being formal and writing cringe logs so idc anymore as long as the idea gets across.
+                    everyone liked the movie yesterday and now im writing this log. i woke up this morning, brushed my teeth,
+                    watched tv, ate, watched tv, did homework, played some games, and now im here. im probably going to update
+                    the firmware on the esp because im manually writing each path in instead of making it dynamically serve
+                    html if that file exists in the github directory already. also the files being stored like the picture 
+                    of the seating map yesterday are also assigned paths so i will make that dynamic too.
+                </p>
+
+<pre>
+
+server.serveStatic("/", SPIFFS, "/files/");
+
+server.onNotFound([](AsyncWebServerRequest *request) {
+    String path = request->url();
+
+    if (path.startsWith("/journal")) {
+        if (path.startsWith("/journal/2026-")) {
+            String content = fetch("https://raw.githubusercontent.com/tharakeshrajesh/3272010/refs/heads/main"+path+".html");
+            if (!content.startsWith("&lt;h1&gt;Error Fetching Content&lt;/h1&gt;")) {
+                request->send(200, "text/html", content);
+                return;
+            }
+        }
+        AsyncWebServerResponse *response = request->beginResponse(301);
+        response->addHeader("Location", "/journal/");
+        response->addHeader("Cache-Control", "max-age=86400");
+        request->send(response);
+        return;
+    }
+
+    request->send(404, "text/html", fetch("/404.html"));
+});
+
+</pre>
+
+                <p style="text-indent: 40px;">
+                    above is the new code i replaced the old one with to work dynamically. it works. also fetch isnt a prebuilt
+                    function or library, its a function i made that just scrapes content off websites and returns it as a string literal.
+                    and ik that if i do <code>path.startsWith("/journal/2026-")</code> then it will only work for 2026 logs but thats a problem for later.
+                    i spent way too long on that—1h and 30m according to wakatime. if i decide to change the html for the entries then i realized i would have
+                    to manually change it here. i did learn how to use astro or whatever it was to have it happen dynamically but that was too complicated and 
+                    im too lazy for that. whatever, i might just not update the older entries then and leave it as a "memory."
+                </p>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
