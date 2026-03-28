@@ -122,7 +122,9 @@ server.onNotFound([](AsyncWebServerRequest *request) {
                     and ik that if i do <code>path.startsWith("/journal/2026-")</code> then it will only work for 2026 logs but thats a problem for later.
                     i spent way too long on that—1h and 30m according to wakatime. if i decide to change the html for the entries then i realized i would have
                     to manually change it here. i did learn how to use astro or whatever it was to have it happen dynamically but that was too complicated and 
-                    im too lazy for that. whatever, i might just not update the older entries then and leave it as a "memory."
+                    im too lazy for that. whatever, i might just not update the older entries then and leave it as a "memory." bruh i just realized i might have 
+                    set the cache time too long because i was testing if it worked for this log and it didnt and i knew it was caching the redirect so i deleted 
+                    caches and it worked. i might just remove the cache control or make it smaller later.
                 </p>
             </div>
         </div>
